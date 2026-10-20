@@ -1,0 +1,10 @@
+{
+  "sixWorkerFlow": "passed",
+  "workersWithGamesAndGradients": 6,
+  "updates": 12,
+  "samples": 9360,
+  "elapsedMs": 15749.679903999999,
+  "pauseCancelsJobs": true,
+  "checkpointSaved": true,
+  "helpPages": 10
+}

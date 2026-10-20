@@ -1,0 +1,99 @@
+Bank Net 2 — v4.5
+
+Train → Inputs & numbers opens the in-app guide.
+
+Architecture: 45,316 weights; 44 table features; a shared 32→48→48 opponent encoder; two global-conditioned attention heads; mean, max and active-player pooling; a residual 284→96→96 trunk; four outputs. Opponent rows are pooled as a set, supporting 2–12 players without padding or a fixed seat ordering.
+
+Six selected training workers all generate games and all compute gradients. One briefly aggregates the weighted gradient sums and applies a single Adam step. Actual CPU-core scheduling is controlled by Safari. Training workers and search workers are independent settings.
+
+Warm-up imitates a heuristic until at least 8,192 samples and eight updates. It does not imitate full v3.5 searches. The previous all-rivals-active waiting heuristic is removed from the neural warm-up teacher. PPO then learns terminal win shares against scripts, self-play and snapshots. Only non-forced actions normalize PPO advantages. The value targets are bounded terminal returns; positive KL guards excessive policy changes, and gradients are clipped.
+
+Policy BANK/CONTINUE are action preferences, not winning odds. The value head and two auxiliary action-value heads learn uncalibrated training-policy outcomes. Exact response rules override actions; the auxiliary action values do not choose actions. New value-head priors start at 1/playerCount rather than 50% for every table.
+
+Updates: completed collection/training batches. Episodes: completed simulated games committed into those batches. Samples: decision positions collected once, even if two training epochs reuse them. Weights: adjustable learned numbers. Loss: combined fitting objective, not a strength score. Entropy H: 0 certain to ln(2)≈0.693 evenly split policy. KL: policy movement versus collection weights, not win difference. BANK rate: collected action frequency including exact overrides, not a win rate. Gradient norm: size of the raw mean gradient before clipping; internal diagnostic. Clipped fraction: fraction of non-forced PPO samples at the clipping boundary; internal diagnostic. Value error: mean squared value prediction error on collected terminal returns; internal diagnostic.
+
+Minimum/maximum players set the table range. Session seconds bounds the session; incomplete batches are discarded. Evaluation games covers all 33 player-count/round-length combinations. Net/reference are paired mean terminal win shares against scripts; reference is a heuristic, not v3.5. Export/import preserves compatible weights and optimizer state. Reset retains game scores. Bank Net 1 checkpoints are architecturally incompatible; their original storage slot is not overwritten.
+
+Signed logarithm-like score normalization: asinh(score/100)/4. Reach features are exact up to a target of 2,048, otherwise marked lower/upper bounds on a coarse integer grid. Seven personality-family probabilities summarize the existing opponent model; they are estimates, not facts. Modeled banking chances integrate that model and are not exact dice probabilities. Private action-window bookkeeping is excluded; only public state enters the network.
+
+All global inputs in order:
+1. asinh(pot/100)/4
+2. remainingRounds/20
+3. totalRounds/20
+4. round/20
+5. playerCount/12
+6. activeFraction
+7. safePhase
+8. asinh(rollCount)/4
+9. normalizedOwnScore
+10. normalizedHighestRivalGap
+11. normalizedPotMinusStrictLeadTarget
+12. ownActive
+13. nextBustProbability
+14. doublesProbability
+15. strictLeadReachLower
+16. strictLeadReachUpper
+17. strictLeadReachExact
+18. tieTargetReachLower
+19. tieTargetReachUpper
+20. nextDangerRollStrictLeadProbability
+21. bankingWouldStrictlyLead
+22. rivalsAheadFraction
+23. activeRivalsAheadFraction
+24. normalizedHighestActiveRivalGap
+25. lastBankExists
+26. rankFraction
+27. winShareIfBustNow
+28. normalizedHighestBankedRivalGap
+29. finalRound
+30. lastActive
+31. tiedWithHighestRival
+32. highestRivalTieFraction
+33. fairShareBaseline
+34. activeRivalFraction
+35. fractionRivalsBelowBankNowScore
+36. winShareIfEveryoneBanksCurrentPot
+37. normalizedPotentialLeaderGap
+38. doublePotReachLower
+39. doublePotReachUpper
+40. meanNormalizedRivalGap
+41. activeRivalsTiedOrAheadFraction
+42. logRemainingRoundsAfterThis
+43. lastBankIsOwnSeat
+44. reachStrictlyAheadOfBankedRivalsLower
+
+All per-opponent inputs in order:
+1. normalizedScoreGap
+2. active
+3. normalizedBankedThisRound
+4. rivalBankWindowOpen
+5. lastBankActor
+6. rivalIsCurrentHighestScore
+7. reachAheadOfRivalLower
+8. reachAheadOfRivalUpper
+9. sameCurrentScore
+10. normalizedPotentialScoreGap
+11. log1p(modelObservations)/6
+12. smoothedBankRate
+13. meanNormalizedBankPot
+14. stdNormalizedBankPot
+15. normalizedLastBankPot
+16. posteriorFixed
+17. posteriorAdaptive
+18. posteriorChaser
+19. posteriorReactive
+20. posteriorMatcher
+21. posteriorStrategic
+22. posteriorNoisy
+23. posteriorExpectedLogBase/8
+24. posteriorEntropy/log(77)
+25. reachAheadOfRivalExact
+26. modeledBankChanceNow
+27. modeledBankChanceAfterDouble
+28. modeledBankChanceStdAcrossHypotheses
+29. bankNowWouldPassRival
+30. ownCurrentScoreStrictlyAhead
+31. activeRivalTiedOrAhead
+32. observationConfidenceCappedAt30
+
+The package includes model-spec.json for exact architecture, loss and feature names. Training capacity and correctness tests do not prove game strength; benchmark saved checkpoints against v3.5 before replacing it.

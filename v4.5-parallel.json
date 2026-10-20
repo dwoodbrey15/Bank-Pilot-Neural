@@ -1,0 +1,18 @@
+{
+  "workers": 6,
+  "games": 6,
+  "samples": 2697,
+  "parameters": 45316,
+  "gradientShards": [
+    450,
+    450,
+    450,
+    449,
+    449,
+    449
+  ],
+  "milliseconds": 5064.842308,
+  "gradientAndApplyMs": 1469.0908760000002,
+  "serialParallelMaxWeightDifference": 1.4551915228366852e-11,
+  "loss": 0.8875094049557781
+}

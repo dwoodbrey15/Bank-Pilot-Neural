@@ -1,0 +1,42 @@
+{
+  "version": "4.5",
+  "engines": "Explicit v3.5 search preset enables the tested target plans; custom Monte Carlo settings, solo and relative goal retained.",
+  "network": {
+    "schema": "banknet-2",
+    "weights": 45316,
+    "globalInputs": 44,
+    "opponentInputs": 32,
+    "attentionHeads": 2,
+    "residualEncoder": true,
+    "residualTrunk": true,
+    "auxiliaryActionValues": true
+  },
+  "training": "Six actual workers generated games and computed synchronized gradients. The extended warm-up-to-PPO flow completed 12 updates using 9360 samples, saved checkpoints and cancelled pending jobs on pause.",
+  "verification": [
+    "Finite-difference checks across all six layers",
+    "Exact and bounded dice reach probabilities",
+    "2\u201312-player input/output and opponent-row permutation checks",
+    "4-million-pot final-round safety overrides",
+    "Initial value priors 1/playerCount",
+    "No hidden action-window inputs",
+    "Parallel gradient sum matches serial calculation",
+    "v3.5 option, custom-setting restoration, arbitrary seat and mode-save checks",
+    "Offline shell and all runtime assets; cache repair and failure paths",
+    "54,498,900 original solo policy decisions preserved"
+  ],
+  "limitations": [
+    "No physical iPhone performance test",
+    "No rendered browser layout test; Chromium is unavailable in this environment",
+    "This is an untrained new architecture; no strength claim versus v3.5"
+  ],
+  "trainerFlow": {
+    "sixWorkerFlow": "passed",
+    "workersWithGamesAndGradients": 6,
+    "updates": 12,
+    "samples": 9360,
+    "elapsedMs": 15749.679903999999,
+    "pauseCancelsJobs": true,
+    "checkpointSaved": true,
+    "helpPages": 10
+  }
+}
